@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
-import 'new_page.dart';  // Import halaman baru
+import 'profile_page.dart';  // Import halaman baru
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   InkWell(
                     onTap: () {
-                      Get.to(() => NewPage());  // Navigasi ke halaman baru saat CircleAvatar ditekan
+                      Get.to(() => ProfilePage());  // Navigasi ke halaman baru saat CircleAvatar ditekan
                     },
                     child: CircleAvatar(
                       backgroundColor: Colors.red,
