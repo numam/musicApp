@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import 'profile_page.dart';  // Import halaman baru
+import 'detail_page.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -115,7 +116,7 @@ class HomeView extends GetView<HomeController> {
                 ],
               ),
             ),
-            Padding(
+             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 'Albums We Love',
@@ -127,9 +128,11 @@ class HomeView extends GetView<HomeController> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _buildAlbumItem('Certified Lover Boy', 'The 1978'),
-                  _buildAlbumItem('D-Day', 'Machine Gun Kelly'),
-                  _buildAlbumItem('Sour', 'Oliva'),
+                  _buildAlbumItem('Certified Lover Boy', 'The 1978', () {
+                    Get.to(() => DetailPage(title: 'Certified Lover Boy', artist: 'The 1978'));
+                  }),
+                  _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
+                  _buildAlbumItem('Sour', 'Oliva', () {}),
                 ],
               ),
             ),
@@ -197,24 +200,27 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildAlbumItem(String title, String artist) {
-    return Container(
-      width: 150,
-      margin: EdgeInsets.only(left: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade800,
-              borderRadius: BorderRadius.circular(10),
+  Widget _buildAlbumItem(String title, String artist, Function onTap) {
+    return InkWell(
+      onTap: () => onTap(),
+      child: Container(
+        width: 150,
+        margin: EdgeInsets.only(left: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-          ),
-          SizedBox(height: 5),
-          Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
-          Text(artist, style: TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
+            SizedBox(height: 5),
+            Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
+            Text(artist, style: TextStyle(color: Colors.grey, fontSize: 12)),
+          ],
+        ),
       ),
     );
   }
