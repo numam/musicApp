@@ -39,7 +39,7 @@ class HomeView extends GetView<HomeController> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Container(
-                height: 200,
+                height: 250,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -92,9 +92,9 @@ class HomeView extends GetView<HomeController> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _buildMusicItem('Today\'s Hit', 'Apple Music Hits'),
-                  _buildMusicItem('R&B Now', 'Apple music R&B'),
-                  _buildMusicItem('New Music Daily', 'Apple Music'),
+                  _buildMusicItem('Today\'s Hit', 'Apple Music Hits', 'lib/app/assets/cover.webp'),
+                  _buildMusicItem('R&B Now', 'Apple music R&B', 'lib/app/assets/cover.webp'),
+                  _buildMusicItem('New Music Daily', 'Apple Music', 'lib/app/assets/cover.webp'),
                 ],
               ),
             ),
@@ -153,7 +153,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildMusicItem(String title, String subtitle) {
+  Widget _buildMusicItem(String title, String subtitle, String imagePath) {
     return Container(
       width: 150,
       margin: EdgeInsets.only(left: 16),
@@ -163,8 +163,11 @@ class HomeView extends GetView<HomeController> {
           Container(
             height: 150,
             decoration: BoxDecoration(
-              color: Colors.grey.shade800,
               borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: AssetImage(imagePath),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           SizedBox(height: 5),
