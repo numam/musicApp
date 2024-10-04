@@ -6,15 +6,51 @@ import 'dart:io';
 class ProfileController extends GetxController {
   var profileImage = Rx<File?>(null); // Observing the profile image
 
-  Future<void> pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      profileImage.value = File(pickedFile.path);
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: source);
+      if (pickedFile != null) {
+        profileImage.value = File(pickedFile.path);
+      } else {
+        Get.snackbar('Error', 'No image selected');
+      }
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to pick image');
     }
   }
-}
 
+  void showImageSourceActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Pick from Gallery'),
+                onTap: () {
+                  pickImage(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt),
+                title: Text('Take a Photo'),
+                onTap: () {
+                  pickImage(ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
 
 class ProfilePage extends StatelessWidget {
   final ProfileController profileController = Get.put(ProfileController());
@@ -36,86 +72,86 @@ class ProfilePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            SizedBox(height: 20),
-            Obx(
-              () => GestureDetector(
-                onTap: () => profileController.pickImage(),
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: profileController.profileImage.value != null
-                      ? FileImage(profileController.profileImage.value!)
-                      : AssetImage('assets/default_avatar.png')
-                          as ImageProvider,
-                  child: profileController.profileImage.value == null
-                      ? Icon(Icons.camera_alt, size: 50, color: Colors.white)
-                      : null,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              SizedBox(height: 20),
+              Obx(
+                () => GestureDetector(
+                  onTap: () => profileController.showImageSourceActionSheet(context),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: profileController.profileImage.value != null
+                        ? FileImage(profileController.profileImage.value!)
+                        : AssetImage('assets/default_avatar.png') as ImageProvider,
+                    child: profileController.profileImage.value == null
+                        ? Icon(Icons.camera_alt, size: 50, color: Colors.white)
+                        : null,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () => profileController.pickImage(),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red, // Change button color to red
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () => profileController.showImageSourceActionSheet(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, // Change button color to red
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+                child: Text('Change Photo', style: TextStyle(fontSize: 16)),
               ),
-              child: Text('Change Photo', style: TextStyle(fontSize: 16)),
-            ),
-            SizedBox(height: 20),
-            Divider(color: Colors.white),
-            ListTile(
-              title: Text(
-                'Redeem Gift Card or Code',
-                style: TextStyle(color: Colors.red),
+              SizedBox(height: 20),
+              Divider(color: Colors.grey.shade700),
+              ListTile(
+                title: Text(
+                  'Redeem Gift Card or Code',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  // Action for redeem
+                },
               ),
-              onTap: () {
-                // Action for redeem
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Add Funds to Apple ID',
-                style: TextStyle(color: Colors.red),
+              ListTile(
+                title: Text(
+                  'Add Funds to Apple ID',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  // Action for add funds
+                },
               ),
-              onTap: () {
-                // Action for add funds
-              },
-            ),
-            ListTile(
-              title: Text(
-                'Get 1 Month for US\$4.99',
-                style: TextStyle(color: Colors.red),
+              ListTile(
+                title: Text(
+                  'Get 1 Month for US\$4.99',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  // Action for subscription
+                },
               ),
-              onTap: () {
-                // Action for subscription
-              },
-            ),
-            Divider(color: Colors.grey),
-            ListTile(
-              title: Text('Notifications'),
-              trailing: Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                // Navigate to Notifications page
-              },
-            ),
-            Divider(color: Colors.grey),
-            ListTile(
-              title: Text(
-                'Log Out',
-                style: TextStyle(color: Colors.red),
+              Divider(color: Colors.grey.shade700),
+              ListTile(
+                title: Text('Notifications'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  // Navigate to Notifications page
+                },
               ),
-              onTap: () {
-                // Action for logging out
-              },
-            ),
-          ],
+              Divider(color: Colors.grey.shade700),
+              ListTile(
+                title: Text(
+                  'Log Out',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  // Action for logging out
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
