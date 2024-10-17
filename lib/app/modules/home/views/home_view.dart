@@ -89,15 +89,24 @@ class HomeView extends GetView<HomeController> {
             ),
             Container(
               height: 200,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildMusicItem('Today\'s Hit', 'Apple Music Hits', 'lib/app/assets/cover.webp'),
-                  _buildMusicItem('R&B Now', 'Apple music R&B', 'lib/app/assets/cover.webp'),
-                  _buildMusicItem('New Music Daily', 'Apple Music', 'lib/app/assets/cover.webp'),
-                ],
-              ),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return Center(child: CircularProgressIndicator());  // Menampilkan loading indicator
+                } else if (controller.songs.isEmpty) {
+                  return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
+                } else {
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.songs.length,
+                    itemBuilder: (context, index) {
+                      var song = controller.songs[index];
+                      return _buildMusicItem(song['title'], song['artist']['name'], song['album']['cover_medium']);
+                    },
+                  );
+                }
+              }),
             ),
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
@@ -128,8 +137,8 @@ class HomeView extends GetView<HomeController> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _buildAlbumItem('Certified Lover Boy', 'The 1978', () {
-                    Get.to(() => DetailPage(title: 'Certified Lover Boy', artist: 'The 1978'));
+                  _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
+                    Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'The 1978'));
                   }),
                   _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
                   _buildAlbumItem('Sour', 'Oliva', () {}),
@@ -153,7 +162,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildMusicItem(String title, String subtitle, String imagePath) {
+  Widget _buildMusicItem(String title, String artist, String imageUrl) {
     return Container(
       width: 150,
       margin: EdgeInsets.only(left: 16),
@@ -165,18 +174,19 @@ class HomeView extends GetView<HomeController> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
-                image: AssetImage(imagePath),
+                image: NetworkImage(imageUrl),  // Menggunakan gambar dari Deezer API
                 fit: BoxFit.cover,
               ),
             ),
           ),
           SizedBox(height: 5),
           Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
-          Text(subtitle, style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text(artist, style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );
   }
+
 
   Widget _buildStationItem(String title, Color color) {
     return Container(

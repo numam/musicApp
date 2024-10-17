@@ -26,12 +26,12 @@ class DetailPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             image: const DecorationImage(
-                              image: AssetImage('lib/app/assets/cover.webp'), // Menggunakan gambar yang sama
+                              image: AssetImage('lib/app/assets/lisa.webp'), // Menggunakan gambar yang sama
                               fit: BoxFit.cover,
                             ),
                           ),
-                          height: 300, // Ukuran tinggi untuk menyesuaikan gambar
-                          width: 300,  // Ukuran lebar untuk menyesuaikan gambar
+                          height: 400, // Ukuran tinggi untuk menyesuaikan gambar
+                          width: 400,  // Ukuran lebar untuk menyesuaikan gambar
                         ),
                       ),
                     ),
