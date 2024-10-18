@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'music_player_screen.dart';
+import 'artist_detail_screen.dart';
 
 class DetailPage extends StatelessWidget {
   final String title;
@@ -26,12 +28,12 @@ class DetailPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(8),
                             image: const DecorationImage(
-                              image: AssetImage('lib/app/assets/lisa.webp'), // Menggunakan gambar yang sama
+                              image: AssetImage('lib/app/assets/lisa.webp'),
                               fit: BoxFit.cover,
                             ),
                           ),
-                          height: 400, // Ukuran tinggi untuk menyesuaikan gambar
-                          width: 400,  // Ukuran lebar untuk menyesuaikan gambar
+                          height: 400,
+                          width: 400,
                         ),
                       ),
                     ),
@@ -39,9 +41,10 @@ class DetailPage extends StatelessWidget {
                     Text(
                       title,
                       style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     SliderTheme(
@@ -82,15 +85,26 @@ class DetailPage extends StatelessWidget {
                     children: [
                       const Icon(Icons.skip_previous,
                           color: Colors.white, size: 32),
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+                      GestureDetector(
+                        onTap: () {
+                          // Navigate to MusicPlayerScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MusicPlayerScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.pause,
+                              color: Colors.black, size: 32),
                         ),
-                        child: const Icon(Icons.pause,
-                            color: Colors.black, size: 32),
                       ),
                       const Icon(Icons.skip_next,
                           color: Colors.white, size: 32),
@@ -119,13 +133,24 @@ class DetailPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Icon(Icons.chat_bubble_outline,
-                          color: Colors.white, size: 24),
-                      Icon(Icons.wifi, color: Colors.white, size: 24),
-                      Icon(Icons.list, color: Colors.white, size: 24),
+                      IconButton(
+                        icon: const Icon(Icons.chat_bubble_outline,
+                            color: Colors.white, size: 24),
+                        onPressed: () {
+                          // Navigate to ArtistDetailScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ArtistDetailScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                      const Icon(Icons.wifi, color: Colors.white, size: 24),
+                      const Icon(Icons.list, color: Colors.white, size: 24),
                     ],
                   ),
                 ],
