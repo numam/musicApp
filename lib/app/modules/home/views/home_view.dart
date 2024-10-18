@@ -88,7 +88,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             Container(
-              height: 200,
+              height: 250,
               child: Obx(() {
                 if (controller.isLoading.value) {
                   return Center(child: CircularProgressIndicator());  // Menampilkan loading indicator
@@ -107,6 +107,7 @@ class HomeView extends GetView<HomeController> {
               }),
             ),
 
+            // Bagian baru untuk "Stations by Genre" yang dinamis
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
@@ -116,16 +117,27 @@ class HomeView extends GetView<HomeController> {
             ),
             Container(
               height: 200,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildStationItem('Hits Station', Colors.yellow),
-                  _buildStationItem('Acoustic Station', Colors.teal),
-                  _buildStationItem('Chill Station', Colors.red),
-                ],
-              ),
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (controller.genres.isEmpty) {
+                  return Center(child: Text('No genres found', style: TextStyle(color: Colors.white)));
+                } else {
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.genres.length,
+                    itemBuilder: (context, index) {
+                      var genre = controller.genres[index];
+                      var radio = genre['radios'][0];  // Mengambil radio pertama dari genre
+                      return _buildStationItem(genre['title'], radio['picture_medium']);  // Menggunakan gambar radio
+                    },
+                  );
+                }
+              }),
             ),
-             Padding(
+
+
+            Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
                 'Albums We Love',
@@ -133,7 +145,7 @@ class HomeView extends GetView<HomeController> {
               ),
             ),
             Container(
-              height: 200,
+              height: 250,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
@@ -187,8 +199,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-
-  Widget _buildStationItem(String title, Color color) {
+  Widget _buildStationItem(String title, String imageUrl) {
     return Container(
       width: 150,
       margin: EdgeInsets.only(left: 16),
@@ -198,20 +209,27 @@ class HomeView extends GetView<HomeController> {
           Container(
             height: 150,
             decoration: BoxDecoration(
-              color: color,
               borderRadius: BorderRadius.circular(10),
+              image: imageUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(imageUrl),  // Menggunakan gambar dari API
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+              color: imageUrl.isEmpty ? Colors.grey : null,  // Gambar placeholder jika tidak ada gambar
             ),
-            child: Center(
-              child: Icon(Icons.music_note, color: Colors.white, size: 50),
-            ),
+            child: imageUrl.isEmpty
+                ? Center(child: Icon(Icons.music_note, color: Colors.white, size: 50))
+                : null,
           ),
           SizedBox(height: 5),
           Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
-          Text('Apple Music', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text('Deezer Radio', style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );
   }
+
 
   Widget _buildAlbumItem(String title, String artist, Function onTap) {
     return InkWell(
