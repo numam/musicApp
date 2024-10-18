@@ -16,7 +16,7 @@ class HomeController extends GetxController {
     super.onInit();
     // Panggil API saat controller diinisialisasi
     fetchDeezerTracks();
-    fetchDeezerGenres();
+    fetchGenres();
   }
 
   // Fungsi untuk mengambil lagu dari API Deezer
@@ -39,16 +39,16 @@ class HomeController extends GetxController {
   }
 
   // Fungsi untuk mengambil daftar genre radio dari API Deezer
-  Future<void> fetchDeezerGenres() async {
+  Future<void> fetchGenres() async {
     isLoading(true);
-    final url = 'https://api.deezer.com/radio/genres';  // API Deezer untuk mendapatkan genre radio
+    final url = 'https://api.deezer.com/radio/genres'; // Ganti dengan URL yang benar
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        genres.value = data['data'];  // Menyimpan daftar genre radio
+        genres.value = data;  // Menyimpan data genre dan radio di dalam variabel genres
       } else {
-        Get.snackbar("Error", "Failed to fetch genres from Deezer API");
+        Get.snackbar("Error", "Failed to fetch data from Deezer API");
       }
     } catch (e) {
       Get.snackbar("Error", "Something went wrong: $e");
