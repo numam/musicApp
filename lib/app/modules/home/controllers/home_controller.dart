@@ -41,12 +41,12 @@ class HomeController extends GetxController {
   // Fungsi untuk mengambil daftar genre radio dari API Deezer
   Future<void> fetchGenres() async {
     isLoading(true);
-    final url = 'https://api.deezer.com/radio/genres'; // Ganti dengan URL yang benar
+    final url = 'https://api.deezer.com/radio/genres'; // API Deezer untuk mendapatkan daftar genre radio
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        genres.value = data;  // Menyimpan data genre dan radio di dalam variabel genres
+        genres.value = data['data'];  // Menyimpan daftar genre
       } else {
         Get.snackbar("Error", "Failed to fetch data from Deezer API");
       }

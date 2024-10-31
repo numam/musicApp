@@ -80,6 +80,7 @@ class HomeView extends GetView<HomeController> {
                 ),
               ),
             ),
+            
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
@@ -129,12 +130,13 @@ class HomeView extends GetView<HomeController> {
                     itemBuilder: (context, index) {
                       var genre = controller.genres[index];
                       var radio = genre['radios'][0];  // Mengambil radio pertama dari genre
-                      return _buildStationItem(genre['title'], radio['picture_medium']);  // Menggunakan gambar radio
+                      return _buildStationItem(genre['title'], radio['picture_medium']);  // Menampilkan gambar radio
                     },
                   );
                 }
               }),
             ),
+
 
 
             Padding(
@@ -150,7 +152,7 @@ class HomeView extends GetView<HomeController> {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
-                    Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'The 1978'));
+                    Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'));
                   }),
                   _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
                   _buildAlbumItem('Sour', 'Oliva', () {}),
