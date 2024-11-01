@@ -4,9 +4,11 @@ part of 'app_pages.dart';
 abstract class Routes {
   Routes._();
   static const HOME = _Paths.HOME;
+  static const LIBRARY = _Paths.LIBRARY; // Tambahkan konstanta LIBRARY
 }
 
 abstract class _Paths {
   _Paths._();
   static const HOME = '/home';
+  static const LIBRARY = '/library'; // Tambahkan path untuk LIBRARY
 }

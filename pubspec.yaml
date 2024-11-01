@@ -13,7 +13,9 @@ dependencies:
   webview_flutter: ^3.0.4
   flutter: 
     sdk: flutter
-  firebase_core: ^2.27.0
+  firebase_core: ^2.15.1
+  cloud_firestore: ^4.15.8
+  intl: ^0.18.1
 
 dev_dependencies: 
   flutter_lints: ^2.0.0

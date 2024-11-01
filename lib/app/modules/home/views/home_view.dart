@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
-import 'profile_page.dart';  // Import halaman baru
+import 'profile_page.dart';
 import 'detail_page.dart';
+import 'library_page.dart'; // Import halaman baru
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     InkWell(
                       onTap: () {
-                        Get.to(() => ProfilePage());  // Navigasi ke halaman baru saat CircleAvatar ditekan
+                        Get.to(() => ProfilePage(), transition: Transition.noTransition); // Navigasi tanpa animasi
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.red,
@@ -82,7 +83,6 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
               ),
-              
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -94,7 +94,7 @@ class HomeView extends GetView<HomeController> {
                 height: 250,
                 child: Obx(() {
                   if (controller.isLoading.value) {
-                    return Center(child: CircularProgressIndicator());  // Menampilkan loading indicator
+                    return Center(child: CircularProgressIndicator()); // Menampilkan loading indicator
                   } else if (controller.songs.isEmpty) {
                     return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
                   } else {
@@ -109,8 +109,6 @@ class HomeView extends GetView<HomeController> {
                   }
                 }),
               ),
-
-              // Bagian baru untuk "Stations by Genre" yang dinamis
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -131,16 +129,13 @@ class HomeView extends GetView<HomeController> {
                       itemCount: controller.genres.length,
                       itemBuilder: (context, index) {
                         var genre = controller.genres[index];
-                        var radio = genre['radios'][0];  // Mengambil radio pertama dari genre
-                        return _buildStationItem(genre['title'], radio['picture_medium']);  // Menampilkan gambar radio
+                        var radio = genre['radios'][0]; // Mengambil radio pertama dari genre
+                        return _buildStationItem(genre['title'], radio['picture_medium']); // Menampilkan gambar radio
                       },
                     );
                   }
                 }),
               ),
-
-
-
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -154,7 +149,7 @@ class HomeView extends GetView<HomeController> {
                   scrollDirection: Axis.horizontal,
                   children: [
                     _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
-                      Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'));
+                      Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'), transition: Transition.noTransition);
                     }),
                     _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
                     _buildAlbumItem('Sour', 'Oliva', () {}),
@@ -169,6 +164,11 @@ class HomeView extends GetView<HomeController> {
         backgroundColor: Colors.black,
         selectedItemColor: Colors.red,
         unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          if (index == 2) { // Indeks untuk Library
+            Get.to(() => LibraryPage(), transition: Transition.noTransition); // Navigasi tanpa animasi
+          }
+        },
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.play_circle_filled), label: 'Listen Now'),
           BottomNavigationBarItem(icon: Icon(Icons.radio), label: 'Radio'),
@@ -191,7 +191,7 @@ class HomeView extends GetView<HomeController> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
               image: DecorationImage(
-                image: NetworkImage(imageUrl),  // Menggunakan gambar dari Deezer API
+                image: NetworkImage(imageUrl),
                 fit: BoxFit.cover,
               ),
             ),
@@ -217,11 +217,11 @@ class HomeView extends GetView<HomeController> {
               borderRadius: BorderRadius.circular(10),
               image: imageUrl.isNotEmpty
                   ? DecorationImage(
-                      image: NetworkImage(imageUrl),  // Menggunakan gambar dari API
+                      image: NetworkImage(imageUrl),
                       fit: BoxFit.cover,
                     )
                   : null,
-              color: imageUrl.isEmpty ? Colors.grey : null,  // Gambar placeholder jika tidak ada gambar
+              color: imageUrl.isEmpty ? Colors.grey : null,
             ),
             child: imageUrl.isEmpty
                 ? Center(child: Icon(Icons.music_note, color: Colors.white, size: 50))
@@ -234,7 +234,6 @@ class HomeView extends GetView<HomeController> {
       ),
     );
   }
-
 
   Widget _buildAlbumItem(String title, String artist, Function onTap) {
     return InkWell(
