@@ -12,154 +12,157 @@ class HomeView extends GetView<HomeController> {
     return Scaffold(
       backgroundColor: Colors.black, // Menambahkan background color hitam
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Listen Now',
-                    style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Get.to(() => ProfilePage());  // Navigasi ke halaman baru saat CircleAvatar ditekan
-                    },
-                    child: CircleAvatar(
-                      backgroundColor: Colors.red,
-                      child: Icon(Icons.person, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.red.shade800, Colors.red.shade600],
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 32.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      '80 million songs to\nplay or download. All\nad-free',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      'Halo',
+                      style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.apple, color: Colors.white, size: 30),
-                        Text(
-                          'Music',
-                          style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Try it free',
-                      style: TextStyle(color: Colors.white, fontSize: 16),
-                    ),
-                    Text(
-                      '1 month free, then US\$4.99/month.',
-                      style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+                    InkWell(
+                      onTap: () {
+                        Get.to(() => ProfilePage());  // Navigasi ke halaman baru saat CircleAvatar ditekan
+                      },
+                      child: CircleAvatar(
+                        backgroundColor: Colors.red,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'New Songs Added',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  height: 250,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.red.shade800, Colors.red.shade600],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '80 million songs to\nplay or download. All\nad-free',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.apple, color: Colors.white, size: 30),
+                          Text(
+                            'Music',
+                            style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Try it free',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                      Text(
+                        '1 month free, then US\$4.99/month.',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            Container(
-              height: 250,
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(child: CircularProgressIndicator());  // Menampilkan loading indicator
-                } else if (controller.songs.isEmpty) {
-                  return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
-                } else {
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: controller.songs.length,
-                    itemBuilder: (context, index) {
-                      var song = controller.songs[index];
-                      return _buildMusicItem(song['title'], song['artist']['name'], song['album']['cover_medium']);
-                    },
-                  );
-                }
-              }),
-            ),
-
-            // Bagian baru untuk "Stations by Genre" yang dinamis
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Stations by Genre',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'New Songs Added',
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            Container(
-              height: 200,
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (controller.genres.isEmpty) {
-                  return Center(child: Text('No genres found', style: TextStyle(color: Colors.white)));
-                } else {
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: controller.genres.length,
-                    itemBuilder: (context, index) {
-                      var genre = controller.genres[index];
-                      var radio = genre['radios'][0];  // Mengambil radio pertama dari genre
-                      return _buildStationItem(genre['title'], radio['picture_medium']);  // Menampilkan gambar radio
-                    },
-                  );
-                }
-              }),
-            ),
-
-
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Albums We Love',
-                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              Container(
+                height: 250,
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return Center(child: CircularProgressIndicator());  // Menampilkan loading indicator
+                  } else if (controller.songs.isEmpty) {
+                    return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
+                  } else {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.songs.length,
+                      itemBuilder: (context, index) {
+                        var song = controller.songs[index];
+                        return _buildMusicItem(song['title'], song['artist']['name'], song['album']['cover_medium']);
+                      },
+                    );
+                  }
+                }),
               ),
-            ),
-            Container(
-              height: 250,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
-                    Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'));
-                  }),
-                  _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
-                  _buildAlbumItem('Sour', 'Oliva', () {}),
-                ],
+
+              // Bagian baru untuk "Stations by Genre" yang dinamis
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Stations by Genre',
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-          ],
+              Container(
+                height: 200,
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (controller.genres.isEmpty) {
+                    return Center(child: Text('No genres found', style: TextStyle(color: Colors.white)));
+                  } else {
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: controller.genres.length,
+                      itemBuilder: (context, index) {
+                        var genre = controller.genres[index];
+                        var radio = genre['radios'][0];  // Mengambil radio pertama dari genre
+                        return _buildStationItem(genre['title'], radio['picture_medium']);  // Menampilkan gambar radio
+                      },
+                    );
+                  }
+                }),
+              ),
+
+
+
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Albums We Love',
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                height: 250,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
+                      Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'));
+                    }),
+                    _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
+                    _buildAlbumItem('Sour', 'Oliva', () {}),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
