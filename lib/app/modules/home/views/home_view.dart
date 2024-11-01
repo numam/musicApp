@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import 'profile_page.dart';
 import 'detail_page.dart';
-import 'library_page.dart'; // Import halaman baru
+import 'library_page.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -11,7 +11,7 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Menambahkan background color hitam
+      backgroundColor: Colors.black,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(top: 32.0),
@@ -29,7 +29,7 @@ class HomeView extends GetView<HomeController> {
                     ),
                     InkWell(
                       onTap: () {
-                        Get.to(() => ProfilePage(), transition: Transition.noTransition); // Navigasi tanpa animasi
+                        Get.to(() => ProfilePage(), transition: Transition.noTransition);
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.red,
@@ -94,7 +94,7 @@ class HomeView extends GetView<HomeController> {
                 height: 250,
                 child: Obx(() {
                   if (controller.isLoading.value) {
-                    return Center(child: CircularProgressIndicator()); // Menampilkan loading indicator
+                    return Center(child: CircularProgressIndicator());
                   } else if (controller.songs.isEmpty) {
                     return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
                   } else {
@@ -129,8 +129,8 @@ class HomeView extends GetView<HomeController> {
                       itemCount: controller.genres.length,
                       itemBuilder: (context, index) {
                         var genre = controller.genres[index];
-                        var radio = genre['radios'][0]; // Mengambil radio pertama dari genre
-                        return _buildStationItem(genre['title'], radio['picture_medium']); // Menampilkan gambar radio
+                        var radio = genre['radios'][0];
+                        return _buildStationItem(genre['title'], radio['picture_medium']);
                       },
                     );
                   }
@@ -165,8 +165,8 @@ class HomeView extends GetView<HomeController> {
         selectedItemColor: Colors.red,
         unselectedItemColor: Colors.grey,
         onTap: (index) {
-          if (index == 2) { // Indeks untuk Library
-            Get.to(() => LibraryPage(), transition: Transition.noTransition); // Navigasi tanpa animasi
+          if (index == 2) {
+            Get.to(() => LibraryPage(), transition: Transition.noTransition);
           }
         },
         items: [

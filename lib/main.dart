@@ -13,7 +13,6 @@ void main() async {
     WebView.platform = SurfaceAndroidWebView();
   }
 
-  // Register PlaylistController lazily
   Get.lazyPut(() => PlaylistController());
 
   runApp(
