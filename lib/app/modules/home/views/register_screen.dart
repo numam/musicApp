@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'login_screen.dart'; // Ensure you import the LoginScreen
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -18,7 +19,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text.trim(),
       );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration successful")));
-      Navigator.pop(context); // Kembali ke halaman login setelah registrasi sukses
+
+      // Navigate to Login Screen after successful registration
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
@@ -46,6 +52,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ElevatedButton(
               onPressed: _register,
               child: Text("Register"),
+            ),
+            SizedBox(height: 20),
+            // Link to Login Screen for users who already have an account
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
+              },
+              child: Text("Already have an account? Log in"),
             ),
           ],
         ),

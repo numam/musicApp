@@ -18,12 +18,9 @@ class AppPages {
       page: () => const HomeView(),
       binding: HomeBinding(),
     ),
-    GetPage(
-      name: _Paths.LIBRARY,
-      page: () => const LibraryPage(),
-      binding: BindingsBuilder(() {
-        Get.put(PlaylistController());
-      }),
-    ),
+     GetPage(
+    name: Routes.LIBRARY,
+    page: () => LibraryPage(),
+  ),
   ];
 }

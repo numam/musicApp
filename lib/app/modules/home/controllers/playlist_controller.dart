@@ -14,7 +14,11 @@ class PlaylistController extends GetxController {
   // Fetch all playlists
   void fetchPlaylists() async {
     final playlistSnapshot = await _firestore.collection('playlists').get();
-    playlists.value = playlistSnapshot.docs.map((doc) => doc.data()).toList();
+    playlists.value = playlistSnapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id; // Tambahkan ID dokumen ke dalam data
+      return data;
+    }).toList();
   }
 
   // Create a new playlist

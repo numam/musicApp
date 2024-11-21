@@ -2,55 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfileController extends GetxController {
-  var profileImage = Rx<File?>(null); // Observing the profile image
-
-  Future<void> pickImage(ImageSource source) async {
-    try {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source);
-      if (pickedFile != null) {
-        profileImage.value = File(pickedFile.path);
-      } else {
-        Get.snackbar('Error', 'No image selected');
-      }
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to pick image');
-    }
-  }
-
-  void showImageSourceActionSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Pick from Gallery'),
-                onTap: () {
-                  pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.camera_alt),
-                title: Text('Take a Photo'),
-                onTap: () {
-                  pickImage(ImageSource.camera);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
+import '../controllers/profile_controller.dart'; // Import FirebaseAuth
 
 class ProfilePage extends StatelessWidget {
   final ProfileController profileController = Get.put(ProfileController());
@@ -145,7 +99,7 @@ class ProfilePage extends StatelessWidget {
                   style: TextStyle(color: Colors.red),
                 ),
                 onTap: () {
-                  // Action for logging out
+                  profileController.logOut(context); // Call the logOut method
                 },
               ),
             ],

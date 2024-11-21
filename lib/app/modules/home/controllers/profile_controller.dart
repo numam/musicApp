@@ -2,24 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class ProfileController extends GetxController {
   var profileImage = Rx<File?>(null); // Observing the profile image
   final ImagePicker _picker = ImagePicker(); // Image picker instance
 
-  
   Future<void> pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
         profileImage.value = File(pickedFile.path); // Update image
       } else {
-        Get.snackbar(
-            'Error', 'No image selected'); // Show error if no image selected
+        Get.snackbar('Error', 'No image selected'); // Show error if no image selected
       }
     } catch (e) {
-      Get.snackbar(
-          'Error', 'Failed to pick image'); // Handle error while picking image
+      Get.snackbar('Error', 'Failed to pick image'); // Handle error while picking image
     }
   }
 
@@ -53,6 +51,18 @@ class ProfileController extends GetxController {
         );
       },
     );
+  }
+
+  // Function to log out the user
+  Future<void> logOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut(); // Sign out from Firebase
+      Get.offAllNamed('/home'); // Navigate to HomeView
+      Get.snackbar('Success', 'Logged out successfully'); // Show success message
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to log out: ${e.toString()}'); // Show error message
+      print('Error during logout: ${e.toString()}'); // Print error to console
+    }
   }
 
   // Function to clear or delete the selected image

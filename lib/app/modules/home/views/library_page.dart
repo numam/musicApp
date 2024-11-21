@@ -63,7 +63,7 @@ class LibraryPage extends StatelessWidget {
         currentIndex: 2,
         onTap: (index) {
           if (index == 0) {
-            Get.off(() => HomeView(), transition: Transition.noTransition);
+            Get.to(() => HomeView(), transition: Transition.noTransition);
           }
         },
         items: [

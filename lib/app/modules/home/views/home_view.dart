@@ -4,6 +4,8 @@ import '../controllers/home_controller.dart';
 import 'profile_page.dart';
 import 'detail_page.dart';
 import 'library_page.dart';
+import 'register_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeView extends GetView<HomeController> {
   const HomeView({Key? key}) : super(key: key);
@@ -28,8 +30,16 @@ class HomeView extends GetView<HomeController> {
                       style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     InkWell(
-                      onTap: () {
-                        Get.to(() => ProfilePage(), transition: Transition.noTransition);
+                      onTap: () async {
+                        // Cek apakah pengguna sudah login
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user == null) {
+                          // Jika belum login, arahkan ke halaman register
+                          Get.to(() => RegisterScreen(), transition: Transition.noTransition);
+                        } else {
+                          // Jika sudah login, arahkan ke halaman profile
+                          Get.to(() => ProfilePage(), transition: Transition.noTransition);
+                        }
                       },
                       child: CircleAvatar(
                         backgroundColor: Colors.red,

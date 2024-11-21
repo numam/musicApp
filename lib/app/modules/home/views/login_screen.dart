@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,8 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _passwordController.text.trim(),
       );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login successful")));
-      // Navigate to Home Screen
-      Navigator.pushReplacementNamed(context, '/home');
+      
+      // Navigate to Home Screen after successful login
+      Navigator.pushReplacementNamed(context, '/home'); // Pastikan route '/home' sudah terdaftar
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
     }
