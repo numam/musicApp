@@ -1,3 +1,4 @@
+import 'package:apple_music/app/modules/home/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
@@ -20,6 +21,7 @@ class HomeView extends GetView<HomeController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
@@ -31,13 +33,10 @@ class HomeView extends GetView<HomeController> {
                     ),
                     InkWell(
                       onTap: () async {
-                        // Cek apakah pengguna sudah login
                         final user = FirebaseAuth.instance.currentUser;
                         if (user == null) {
-                          // Jika belum login, arahkan ke halaman register
                           Get.to(() => RegisterScreen(), transition: Transition.noTransition);
                         } else {
-                          // Jika sudah login, arahkan ke halaman profile
                           Get.to(() => ProfilePage(), transition: Transition.noTransition);
                         }
                       },
@@ -49,6 +48,8 @@ class HomeView extends GetView<HomeController> {
                   ],
                 ),
               ),
+
+              // Promo Section
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Container(
@@ -93,32 +94,24 @@ class HomeView extends GetView<HomeController> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'New Songs Added',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Container(
-                height: 250,
-                child: Obx(() {
-                  if (controller.isLoading.value) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (controller.songs.isEmpty) {
-                    return Center(child: Text('No songs found', style: TextStyle(color: Colors.white)));
-                  } else {
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: controller.songs.length,
-                      itemBuilder: (context, index) {
-                        var song = controller.songs[index];
-                        return _buildMusicItem(song['title'], song['artist']['name'], song['album']['cover_medium']);
-                      },
-                    );
-                  }
-                }),
-              ),
+
+              // Chart Tracks Section
+              _buildSectionTitle('Chart Tracks'),
+              _buildHorizontalSongList(controller.songs),
+
+              // Trending Tracks Section
+              _buildSectionTitle('Trending Tracks'),
+              _buildHorizontalSongList(controller.trendingSongs),
+
+              // Pop Tracks Section
+              _buildSectionTitle('Pop Tracks'),
+              _buildHorizontalSongList(controller.popSongs),
+
+              // Rock Tracks Section
+              _buildSectionTitle('Rock Tracks'),
+              _buildHorizontalSongList(controller.rockSongs),
+
+              // Stations by Genre Section
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -146,6 +139,8 @@ class HomeView extends GetView<HomeController> {
                   }
                 }),
               ),
+
+              // Albums We Love Section
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
@@ -178,6 +173,9 @@ class HomeView extends GetView<HomeController> {
           if (index == 2) {
             Get.to(() => LibraryPage(), transition: Transition.noTransition);
           }
+          else if (index == 3) {
+            Get.to(() => SearchPage(), transition: Transition.noTransition);
+          }
         },
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.play_circle_filled), label: 'Listen Now'),
@@ -189,27 +187,84 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  Widget _buildMusicItem(String title, String artist, String imageUrl) {
+  // Helper method to create section titles
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Text(
+        title,
+        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  // Helper method to create horizontal song list
+  Widget _buildHorizontalSongList(RxList<dynamic> songList) {
     return Container(
-      width: 150,
-      margin: EdgeInsets.only(left: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              image: DecorationImage(
-                image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
+      height: 250,
+      child: Obx(() {
+        if (songList.isEmpty) {
+          return Center(
+            child: CircularProgressIndicator(color: Colors.red),
+          );
+        }
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: songList.length,
+          itemBuilder: (context, index) {
+            var song = songList[index];
+            return _buildMusicItem(
+              song['title'], 
+              song['artist']['name'], 
+              song['album']['cover_medium'] ?? '', 
+              song
+            );
+          },
+        );
+      }),
+    );
+  }
+
+  Widget _buildMusicItem(String title, String artist, String imageUrl, dynamic songData) {
+    return GestureDetector(
+      onTap: () {
+        Get.find<HomeController>().playTrack(songData);
+      },
+      child: Container(
+        width: 150,
+        margin: EdgeInsets.only(left: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: imageUrl.isNotEmpty 
+                  ? DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+                color: imageUrl.isEmpty ? Colors.grey.shade800 : null,
               ),
+              child: imageUrl.isEmpty 
+                ? Center(child: Icon(Icons.music_note, color: Colors.white, size: 50)) 
+                : null,
             ),
-          ),
-          SizedBox(height: 5),
-          Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
-          Text(artist, style: TextStyle(color: Colors.grey, fontSize: 12)),
-        ],
+            SizedBox(height: 5),
+            Text(title, 
+              style: TextStyle(color: Colors.white, fontSize: 14), 
+              maxLines: 1, 
+              overflow: TextOverflow.ellipsis
+            ),
+            Text(artist, 
+              style: TextStyle(color: Colors.grey, fontSize: 12),
+              maxLines: 1, 
+              overflow: TextOverflow.ellipsis
+            ),
+          ],
+        ),
       ),
     );
   }

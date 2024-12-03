@@ -1,62 +1,113 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../views/player_page.dart';
 
 class HomeController extends GetxController {
-  // Variabel untuk menyimpan data lagu dan stasiun radio berdasarkan genre
-  var songs = <dynamic>[].obs; // Untuk lagu-lagu terbaru
-  var genres = <dynamic>[].obs; // Untuk genre radio
-  var isLoading = false.obs; // Indikator loading
-
-  // Variabel penghitung, dapat digunakan sesuai kebutuhan
+  var songs = <dynamic>[].obs;
+  var trendingSongs = <dynamic>[].obs;
+  var popSongs = <dynamic>[].obs;
+  var rockSongs = <dynamic>[].obs;
+  var genres = <dynamic>[].obs;
+  var isLoading = false.obs;
   final count = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    // Panggil API saat controller diinisialisasi
-    fetchDeezerTracks();
+    fetchAllSongs();
     fetchGenres();
   }
 
-  // Fungsi untuk mengambil lagu dari API Deezer
+  // Fetch songs from multiple Deezer API endpoints
+  Future<void> fetchAllSongs() async {
+    isLoading(true);
+    try {
+      // Fetch chart tracks
+      await fetchDeezerTracks();
+      
+      // Fetch trending tracks
+      await fetchTrendingTracks();
+      
+      // Fetch genre-specific tracks
+      await fetchGenreTracks('pop');
+      await fetchGenreTracks('rock');
+    } catch (e) {
+      Get.snackbar("Error", "Failed to fetch songs: $e");
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  // Fetch chart tracks
   Future<void> fetchDeezerTracks() async {
-    isLoading(true);
-    final url = 'https://api.deezer.com/chart';  // API Deezer untuk mendapatkan chart musik
+    final url = 'https://api.deezer.com/chart/0/tracks';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        songs.value = data['tracks']['data'];  // Menyimpan daftar lagu
-      } else {
-        Get.snackbar("Error", "Failed to fetch data from Deezer API");
+        songs.value = data['data'];
       }
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
-    } finally {
-      isLoading(false);
+      print('Error fetching chart tracks: $e');
     }
   }
 
-  // Fungsi untuk mengambil daftar genre radio dari API Deezer
+  // Fetch trending tracks
+  Future<void> fetchTrendingTracks() async {
+    final url = 'https://api.deezer.com/chart/0/tracks?limit=20';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        trendingSongs.value = data['data'];
+      }
+    } catch (e) {
+      print('Error fetching trending tracks: $e');
+    }
+  }
+
+  // Fetch genre-specific tracks
+  Future<void> fetchGenreTracks(String genre) async {
+    final url = 'https://api.deezer.com/search?q=genre:"$genre"&limit=20';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+        if (genre == 'pop') {
+          popSongs.value = data['data'];
+        } else if (genre == 'rock') {
+          rockSongs.value = data['data'];
+        }
+      }
+    } catch (e) {
+      print('Error fetching $genre tracks: $e');
+    }
+  }
+
+  // Fetch radio genres
   Future<void> fetchGenres() async {
-    isLoading(true);
-    final url = 'https://api.deezer.com/radio/genres'; // API Deezer untuk mendapatkan daftar genre radio
+    final url = 'https://api.deezer.com/radio/genres';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        genres.value = data['data'];  // Menyimpan daftar genre
-      } else {
-        Get.snackbar("Error", "Failed to fetch data from Deezer API");
+        genres.value = data['data'];
       }
     } catch (e) {
-      Get.snackbar("Error", "Something went wrong: $e");
-    } finally {
-      isLoading(false);
+      print('Error fetching genres: $e');
     }
   }
 
-  // Fungsi untuk increment count
-  void increment() => count.value++;
+  // Navigate to player page
+  void playTrack(dynamic trackData) {
+    Get.to(() => PlayerPage(trackData: trackData), 
+      transition: Transition.rightToLeft
+    );
+  }
+
+  // Optional: Method to get preview URL
+  String? getTrackPreviewUrl(dynamic trackData) {
+    return trackData['preview'] ?? null;
+  }
 }

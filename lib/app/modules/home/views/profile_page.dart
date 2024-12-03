@@ -92,6 +92,22 @@ class ProfilePage extends StatelessWidget {
                   // Navigate to Notifications page
                 },
               ),
+              ListTile(
+                title: Text('Buat Story'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  profileController.createStory(context); // Panggil fungsi createStory
+                },
+              ),
+
+              ListTile(
+                title: Text('Lihat Story'),
+                trailing: Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  profileController.viewStory(); // Panggil fungsi untuk navigasi ke halaman "Lihat Story"
+                },
+              ),
+
               Divider(color: Colors.grey.shade700),
               ListTile(
                 title: Text(
