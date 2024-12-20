@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:file_picker/file_picker.dart';
@@ -7,20 +8,54 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 
+import '../views/NoConnectionView.dart';
+import '../views/library_page.dart';
+
 class PlaylistController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _storage = GetStorage();
   final playlists = <Map<String, dynamic>>[].obs;
+  final isConnected = true.obs;
+
+  final Connectivity _connectivity = Connectivity();
 
   @override
   void onInit() {
     super.onInit();
-    fetchPlaylists();
+    _connectivity.onConnectivityChanged.listen((connectivityResult) {
+      isConnected.value = connectivityResult != ConnectivityResult.none;
+      _updateConnectionStatus();
+    });
+    _checkInitialConnection(); // Check initial connection status
+    fetchPlaylists(); // Fetch playlists on init
   }
 
-  // Fetch all playlists
+  // Check initial connection
+  Future<void> _checkInitialConnection() async {
+    final connectivityResult = await _connectivity.checkConnectivity();
+    isConnected.value = connectivityResult != ConnectivityResult.none;
+    _updateConnectionStatus();
+  }
+
+  // Handle connection status updates
+  void _updateConnectionStatus() {
+    if (!isConnected.value) {
+      Get.offAll(() => const NoConnectionView()); // Navigate to NoConnectionView if no connection
+    } else {
+      if (Get.currentRoute == '/NoConnectionView') {
+        Get.offAll(() => const LibraryPage()); // Navigate to LibraryPage if connection is restored
+      }
+    }
+  }
+
+  // Fetch playlists
   void fetchPlaylists() async {
     try {
+      if (!isConnected.value) {
+        Get.snackbar("No Connection", "Cannot fetch playlists without internet");
+        return;
+      }
+
       final playlistSnapshot = await _firestore.collection('playlists').get();
       playlists.value = playlistSnapshot.docs.map((doc) {
         final data = doc.data();
@@ -28,7 +63,7 @@ class PlaylistController extends GetxController {
         return data;
       }).toList();
 
-      // Save local copy to get_storage
+      // Save to local storage
       _storage.write('playlists', json.encode(playlists.value));
     } catch (e) {
       print('Error fetching playlists: $e');
@@ -36,13 +71,16 @@ class PlaylistController extends GetxController {
     }
   }
 
-  // Create a new playlist with optional cover
+  // Create a new playlist
   Future createPlaylist(String name, {File? coverMedia}) async {
     try {
+      if (!isConnected.value) {
+        Get.snackbar("No Connection", "Cannot create playlist without internet");
+        return;
+      }
+
       String? localMediaPath;
-      
       if (coverMedia != null) {
-        // Save local copy of media
         localMediaPath = await saveLocalMedia(coverMedia);
       }
 
@@ -52,33 +90,77 @@ class PlaylistController extends GetxController {
         'createdAt': DateTime.now().toIso8601String(),
       };
 
-      // Save to Firestore
-      DocumentReference docRef = await _firestore.collection('playlists').add(playlistData);
+      DocumentReference docRef =
+          await _firestore.collection('playlists').add(playlistData);
       playlistData['id'] = docRef.id;
 
-      // Update local storage
-      List<dynamic> currentPlaylists = json.decode(_storage.read('playlists') ?? '[]');
-      currentPlaylists.add(playlistData);
-      _storage.write('playlists', json.encode(currentPlaylists));
-      
-      fetchPlaylists();
+      playlists.add(playlistData);
     } catch (e) {
       print('Create playlist error: $e');
       Get.snackbar('Error', 'Failed to create playlist');
     }
   }
 
-  // Save local copy of media (image or video)
+  // Edit an existing playlist
+  Future editPlaylist(String id, String newName, {File? newCoverMedia}) async {
+    try {
+      if (!isConnected.value) {
+        Get.snackbar("No Connection", "Cannot edit playlist without internet");
+        return;
+      }
+
+      Map<String, dynamic> updateData = {'name': newName};
+      String? newLocalMediaPath;
+
+      if (newCoverMedia != null) {
+        newLocalMediaPath = await saveLocalMedia(newCoverMedia);
+        if (newLocalMediaPath == null) {
+          Get.snackbar('Error', 'Failed to save media');
+          return;
+        }
+        updateData['coverMediaPath'] = newLocalMediaPath;
+      }
+
+      await _firestore.collection('playlists').doc(id).update(updateData);
+
+      int index = playlists.indexWhere((playlist) => playlist['id'] == id);
+      if (index != -1) {
+        playlists[index].addAll(updateData);
+        playlists.refresh();
+      }
+    } catch (e) {
+      print('Edit playlist error: $e');
+      Get.snackbar('Error', 'Failed to edit playlist');
+    }
+  }
+
+  // Delete a playlist
+  Future deletePlaylist(String id) async {
+    try {
+      if (!isConnected.value) {
+        Get.snackbar("No Connection", "Cannot delete playlist without internet");
+        return;
+      }
+
+      await _firestore.collection('playlists').doc(id).delete();
+      playlists.removeWhere((playlist) => playlist['id'] == id);
+    } catch (e) {
+      print('Delete playlist error: $e');
+      Get.snackbar('Error', 'Failed to delete playlist');
+    }
+  }
+
+  // Save local copy of media
   Future<String?> saveLocalMedia(File mediaFile) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final fileName = 'playlist_media_${DateTime.now().millisecondsSinceEpoch}${_getFileExtension(mediaFile)}';
+      final fileName =
+          'playlist_media_${DateTime.now().millisecondsSinceEpoch}${_getFileExtension(mediaFile)}';
       final localFile = File('${directory.path}/$fileName');
       await mediaFile.copy(localFile.path);
       return localFile.path;
     } catch (e) {
       print('Error saving local media: $e');
-      Get.snackbar('Error', 'Failed to save media');
       return null;
     }
   }
@@ -88,7 +170,7 @@ class PlaylistController extends GetxController {
     return '.${file.path.split('.').last}';
   }
 
-  // Pick media from device
+  // Pick media
   Future<File?> pickCoverMedia({bool fromCamera = false}) async {
     try {
       if (fromCamera) {
@@ -111,65 +193,7 @@ class PlaylistController extends GetxController {
       return null;
     } catch (e) {
       print('Error picking media: $e');
-      Get.snackbar('Error', 'Failed to pick media');
       return null;
     }
-  }
-
-  // Edit a playlist with optional new cover media
-  Future editPlaylist(String id, String newName, {File? newCoverMedia}) async {
-    try {
-      Map<String, dynamic> updateData = {'name': newName};
-      String? newLocalMediaPath;
-      
-      if (newCoverMedia != null) {
-        newLocalMediaPath = await saveLocalMedia(newCoverMedia);
-        if (newLocalMediaPath == null) {
-          Get.snackbar('Error', 'Failed to save media');
-          return;
-        }
-        updateData['coverMediaPath'] = newLocalMediaPath;
-      }
-
-      // Update Firestore
-      await _firestore.collection('playlists').doc(id).update(updateData);
-
-      // Update local storage
-      List<dynamic> currentPlaylists = json.decode(_storage.read('playlists') ?? '[]');
-      int index = currentPlaylists.indexWhere((playlist) => playlist['id'] == id);
-      if (index != -1) {
-        currentPlaylists[index].addAll(updateData);
-        _storage.write('playlists', json.encode(currentPlaylists));
-      }
-
-      fetchPlaylists();
-    } catch (e) {
-      print('Edit playlist error: $e');
-      Get.snackbar('Error', 'Failed to edit playlist');
-    }
-  }
-
-  // Delete a playlist
-  Future deletePlaylist(String id) async {
-    try {
-      // Delete from Firestore
-      await _firestore.collection('playlists').doc(id).delete();
-
-      // Update local storage
-      List<dynamic> currentPlaylists = json.decode(_storage.read('playlists') ?? '[]');
-      currentPlaylists.removeWhere((playlist) => playlist['id'] == id);
-      _storage.write('playlists', json.encode(currentPlaylists));
-
-      fetchPlaylists();
-    } catch (e) {
-      print('Delete playlist error: $e');
-      Get.snackbar('Error', 'Failed to delete playlist');
-    }
-  }
-
-  // Retrieve local playlists (fallback method)
-  List<dynamic> getLocalPlaylists() {
-    final playlistsJson = _storage.read('playlists');
-    return playlistsJson != null ? json.decode(playlistsJson) : [];
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:get/get.dart'; // Add this import for Get.back()
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -166,6 +167,12 @@ class _SearchPageState extends State<SearchPage> {
         backgroundColor: Colors.black,
         title: const Text('Cari', style: TextStyle(color: Colors.white)),
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, size: 20, color: Colors.white),
+          onPressed: () {
+            Get.back(); // Navigate back to the previous page
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(

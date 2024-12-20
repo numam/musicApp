@@ -1,9 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 import '../controllers/playlist_controller.dart';
+import 'NoConnectionView.dart';
 import 'home_view.dart';
+import 'location_page.dart';
 import 'playlist_detail_view.dart';
+import 'search_page.dart';
+
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({Key? key}) : super(key: key);
@@ -15,11 +20,12 @@ class LibraryPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text('Library', style: TextStyle(color: Colors.white)),
+        title: const Text('Playlist', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add, size: 30, color: Colors.white),
             onPressed: () {
               _showCreatePlaylistDialog(context, playlistController);
             },
@@ -27,8 +33,14 @@ class LibraryPage extends StatelessWidget {
         ],
       ),
       body: Obx(() {
+        // Deteksi jika tidak ada koneksi internet
+        if (!playlistController.isConnected.value) {
+          return const NoConnectionView();
+        }
+
+        // Tampilkan grid playlist jika koneksi tersedia
         return GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.7,
             crossAxisSpacing: 10,
@@ -55,13 +67,15 @@ class LibraryPage extends StatelessWidget {
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
                                   color: Colors.grey[800],
-                                  child: Icon(Icons.music_note, size: 50, color: Colors.white),
+                                  child: const Icon(Icons.music_note,
+                                      size: 50, color: Colors.white),
                                 );
                               },
                             )
                           : Container(
                               color: Colors.grey[800],
-                              child: Icon(Icons.music_note, size: 50, color: Colors.white),
+                              child: const Icon(Icons.music_note,
+                                  size: 50, color: Colors.white),
                             ),
                     ),
                     Padding(
@@ -72,33 +86,39 @@ class LibraryPage extends StatelessWidget {
                           Expanded(
                             child: Text(
                               playlist['name'],
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           PopupMenuButton<String>(
                             color: Colors.grey[800],
-                            icon: Icon(Icons.more_vert, color: Colors.white),
+                            icon:
+                                const Icon(Icons.more_vert, color: Colors.white),
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _showEditPlaylistDialog(
-                                  context, 
-                                  playlistController, 
+                                  context,
+                                  playlistController,
                                   playlist['id'],
-                                  currentName: playlist['name']
+                                  currentName: playlist['name'],
                                 );
                               } else if (value == 'delete') {
-                                playlistController.deletePlaylist(playlist['id']);
+                                playlistController.deletePlaylist(
+                                    playlist['id']);
                               }
                             },
                             itemBuilder: (BuildContext context) => [
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'edit',
-                                child: Text('Edit', style: TextStyle(color: Colors.white)),
+                                child: Text('Edit',
+                                    style: TextStyle(color: Colors.white)),
                               ),
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'delete',
-                                child: Text('Delete', style: TextStyle(color: Colors.red)),
+                                child: Text('Delete',
+                                    style: TextStyle(color: Colors.red)),
                               ),
                             ],
                           ),
@@ -112,24 +132,55 @@ class LibraryPage extends StatelessWidget {
           },
         );
       }),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 2,
-        onTap: (index) {
-          if (index == 0) {
-            Get.to(() => HomeView(), transition: Transition.noTransition);
-          }
-        },
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.play_circle_filled), label: 'Listen Now'),
-          BottomNavigationBarItem(icon: Icon(Icons.radio), label: 'Radio'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.library_music), label: 'Library'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        ],
+      bottomNavigationBar: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            backgroundBlendMode: BlendMode.overlay,
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              selectedItemColor: Colors.red,
+              unselectedItemColor: Colors.grey,
+              currentIndex: 2,
+              onTap: (index) {
+                switch (index) {
+                  case 0:
+                    Get.to(() => HomeView(),
+                        transition: Transition.noTransition);
+                    break;
+                  case 1:
+                    Get.to(() => LocationPage(),
+                        transition: Transition.noTransition);
+                    break;
+                  case 2:
+                    break;
+                  case 3:
+                    Get.to(() => SearchPage(),
+                        transition: Transition.noTransition);
+                    break;
+                }
+              },
+              items: const [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.play_circle_filled), label: 'Beranda'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.location_on), label: 'Konser'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.library_music), label: 'Playlist'),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.search), label: 'Search'),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -142,15 +193,16 @@ class LibraryPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Create Playlist'),
+        title: const Text('Create Playlist'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(hintText: 'Playlist Name'),
+              decoration:
+                  const InputDecoration(hintText: 'Playlist Name'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -159,22 +211,23 @@ class LibraryPage extends StatelessWidget {
                     selectedCoverMedia = await controller.pickCoverMedia();
                     if (selectedCoverMedia != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Media Selected')),
+                        const SnackBar(content: Text('Media Selected')),
                       );
                     }
                   },
-                  child: Text('Gallery'),
+                  child: const Text('Gallery'),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    selectedCoverMedia = await controller.pickCoverMedia(fromCamera: true);
+                    selectedCoverMedia =
+                        await controller.pickCoverMedia(fromCamera: true);
                     if (selectedCoverMedia != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Camera Photo Selected')),
+                        const SnackBar(content: Text('Camera Photo Selected')),
                       );
                     }
                   },
-                  child: Text('Camera'),
+                  child: const Text('Camera'),
                 ),
               ],
             ),
@@ -185,41 +238,41 @@ class LibraryPage extends StatelessWidget {
             onPressed: () {
               if (nameController.text.isNotEmpty) {
                 controller.createPlaylist(
-                  nameController.text, 
-                  coverMedia: selectedCoverMedia
+                  nameController.text,
+                  coverMedia: selectedCoverMedia,
                 );
                 Get.back();
               } else {
                 Get.snackbar('Error', 'Playlist name cannot be empty');
               }
             },
-            child: Text('Create'),
+            child: const Text('Create'),
           ),
         ],
       ),
     );
   }
 
-  void _showEditPlaylistDialog(
-      BuildContext context, 
-      PlaylistController controller, 
-      String playlistId, 
+  void _showEditPlaylistDialog(BuildContext context,
+      PlaylistController controller, String playlistId,
       {String? currentName}) {
-    final TextEditingController nameController = TextEditingController(text: currentName);
+    final TextEditingController nameController =
+        TextEditingController(text: currentName);
     File? selectedCoverMedia;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Edit Playlist'),
+        title: const Text('Edit Playlist'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nameController,
-              decoration: InputDecoration(hintText: 'New Playlist Name'),
+              decoration:
+                  const InputDecoration(hintText: 'New Playlist Name'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -228,22 +281,23 @@ class LibraryPage extends StatelessWidget {
                     selectedCoverMedia = await controller.pickCoverMedia();
                     if (selectedCoverMedia != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Media Selected')),
+                        const SnackBar(content: Text('Media Selected')),
                       );
                     }
                   },
-                  child: Text('Gallery'),
+                  child: const Text('Gallery'),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    selectedCoverMedia = await controller.pickCoverMedia(fromCamera: true);
+                    selectedCoverMedia =
+                        await controller.pickCoverMedia(fromCamera: true);
                     if (selectedCoverMedia != null) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Camera Photo Selected')),
+                        const SnackBar(content: Text('Camera Photo Selected')),
                       );
                     }
                   },
-                  child: Text('Camera'),
+                  child: const Text('Camera'),
                 ),
               ],
             ),
@@ -254,16 +308,16 @@ class LibraryPage extends StatelessWidget {
             onPressed: () {
               if (nameController.text.isNotEmpty) {
                 controller.editPlaylist(
-                  playlistId, 
+                  playlistId,
                   nameController.text,
-                  newCoverMedia: selectedCoverMedia
+                  newCoverMedia: selectedCoverMedia,
                 );
                 Get.back();
               } else {
                 Get.snackbar('Error', 'Playlist name cannot be empty');
               }
             },
-            child: Text('Update'),
+            child: const Text('Update'),
           ),
         ],
       ),

@@ -14,7 +14,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Artist Detail'),
+        title: Text('Subscribe'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.arrow_back),
@@ -43,7 +43,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> {
       body: Stack(
         children: <Widget>[
           WebView(
-            initialUrl: 'https://open.spotify.com/intl-id',
+            initialUrl: 'https://music.apple.com/us/subscribe',
             javascriptMode: JavascriptMode.unrestricted,
             onWebViewCreated: (WebViewController controller) {
               _webViewController = controller;

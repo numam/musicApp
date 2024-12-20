@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:apple_music/app/modules/home/views/location_page.dart';
 import 'package:apple_music/app/modules/home/views/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -113,14 +116,14 @@ class HomeView extends GetView<HomeController> {
 
               // Stations by Genre Section
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(20.0),
                 child: Text(
                   'Stations by Genre',
                   style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ),
               Container(
-                height: 200,
+                height: 250,
                 child: Obx(() {
                   if (controller.isLoading.value) {
                     return Center(child: CircularProgressIndicator());
@@ -141,49 +144,77 @@ class HomeView extends GetView<HomeController> {
               ),
 
               // Albums We Love Section
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Albums We Love',
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ),
-              Container(
-                height: 250,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
-                      Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'), transition: Transition.noTransition);
-                    }),
-                    _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
-                    _buildAlbumItem('Sour', 'Oliva', () {}),
-                  ],
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(16.0),
+              //   child: Text(
+              //     'Albums We Love',
+              //     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              //   ),
+              // ),
+              // Container(
+              //   height: 250,
+              //   child: ListView(
+              //     scrollDirection: Axis.horizontal,
+              //     children: [
+              //       _buildAlbumItem('Moonlit Floor - Single', 'The 1978', () {
+              //         Get.to(() => DetailPage(title: 'Moonlit Floor - Single', artist: 'Billie Eilish'), transition: Transition.noTransition);
+              //       }),
+              //       _buildAlbumItem('D-Day', 'Machine Gun Kelly', () {}),
+              //       _buildAlbumItem('Sour', 'Oliva', () {}),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.red,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          if (index == 2) {
-            Get.to(() => LibraryPage(), transition: Transition.noTransition);
-          }
-          else if (index == 3) {
-            Get.to(() => SearchPage(), transition: Transition.noTransition);
-          }
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.play_circle_filled), label: 'Listen Now'),
-          BottomNavigationBarItem(icon: Icon(Icons.radio), label: 'Radio'),
-          BottomNavigationBarItem(icon: Icon(Icons.library_music), label: 'Library'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-        ],
+      
+      bottomNavigationBar: ClipRRect(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            backgroundBlendMode: BlendMode.overlay,
+          ),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              selectedItemColor: Colors.red,
+              unselectedItemColor: Colors.grey,
+              currentIndex: 0, // Active on Listen Now icon
+              onTap: (index) {
+                switch (index) {
+                  case 0:
+                    // Already on Home/Listen Now page, no navigation needed
+                    break;
+                  case 1:
+                    Get.to(() => LocationPage(), transition: Transition.noTransition);
+                    break;
+                  case 2:
+                    Get.to(() => LibraryPage(), transition: Transition.noTransition);
+                    break;
+                  case 3:
+                    Get.to(() => SearchPage(), transition: Transition.noTransition);
+                    break;
+                }
+              },
+              items: [
+                BottomNavigationBarItem(icon: Icon(Icons.play_circle_filled), label: 'Beranda'),
+                BottomNavigationBarItem(icon: Icon(Icons.location_on), label: 'Konser'),
+                BottomNavigationBarItem(icon: Icon(Icons.library_music), label: 'Playlist'),
+                BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+              ],
+            ),
+          ),
+        ),
       ),
+
+
     );
   }
 
